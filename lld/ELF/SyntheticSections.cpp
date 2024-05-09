@@ -614,8 +614,15 @@ uint64_t EhFrameSection::getFdePc(uint8_t *buf, size_t fdeOff,
   uint64_t addr = readFdeAddr(buf + off, enc & 0xf);
   if ((enc & 0x70) == DW_EH_PE_absptr)
     return addr;
-  if ((enc & 0x70) == DW_EH_PE_pcrel)
-    return addr + getParent()->addr + off + outSecOff;
+  if ((enc & 0x70) == DW_EH_PE_pcrel) {
+    uint64_t addr_base = getParent()->addr + off + outSecOff;
+    if (enc & 0xf == DW_EH_PE_sdata2)
+      return (int16_t)addr + addr_base;
+    else if (enc & 0xf == DW_EH_PE_sdata4)
+      return (int32_t)addr + addr_base;
+    else
+      return addr + addr_base;
+  }
   fatal("unknown FDE size relative encoding");
 }
 
