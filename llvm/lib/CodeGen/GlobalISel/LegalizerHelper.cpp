@@ -7221,21 +7221,6 @@ LegalizerHelper::lowerFMinNumMaxNum(MachineInstr &MI) {
     TargetOpcode::G_FMINNUM_IEEE : TargetOpcode::G_FMAXNUM_IEEE;
 
   auto [Dst, Src0, Src1] = MI.getFirst3Regs();
-  LLT Ty = MRI.getType(Dst);
-
-  if (!MI.getFlag(MachineInstr::FmNoNans)) {
-    // Insert canonicalizes if it's possible we need to quiet to get correct
-    // sNaN behavior.
-
-    // Note this must be done here, and not as an optimization combine in the
-    // absence of a dedicate quiet-snan instruction as we're using an
-    // omni-purpose G_FCANONICALIZE.
-    if (!isKnownNeverSNaN(Src0, MRI))
-      Src0 = MIRBuilder.buildFCanonicalize(Ty, Src0, MI.getFlags()).getReg(0);
-
-    if (!isKnownNeverSNaN(Src1, MRI))
-      Src1 = MIRBuilder.buildFCanonicalize(Ty, Src1, MI.getFlags()).getReg(0);
-  }
 
   // If there are no nans, it's safe to simply replace this with the non-IEEE
   // version.

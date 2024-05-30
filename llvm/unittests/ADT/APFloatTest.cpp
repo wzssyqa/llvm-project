@@ -573,11 +573,16 @@ TEST(APFloatTest, MinNum) {
   APFloat f1(1.0);
   APFloat f2(2.0);
   APFloat nan = APFloat::getNaN(APFloat::IEEEdouble());
+  APFloat snan = APFloat::getSNaN(APFloat::IEEEdouble());
 
   EXPECT_EQ(1.0, minnum(f1, f2).convertToDouble());
   EXPECT_EQ(1.0, minnum(f2, f1).convertToDouble());
   EXPECT_EQ(1.0, minnum(f1, nan).convertToDouble());
   EXPECT_EQ(1.0, minnum(nan, f1).convertToDouble());
+  EXPECT_TRUE(std::isnan(minnum(f1, snan).convertToDouble()));
+  EXPECT_TRUE(std::isnan(minnum(snan, f1).convertToDouble()));
+  EXPECT_FALSE(minnum(f1, snan).isSignaling());
+  EXPECT_FALSE(minnum(snan, f1).isSignaling());
 
   APFloat zp(0.0);
   APFloat zn(-0.0);
@@ -589,11 +594,16 @@ TEST(APFloatTest, MaxNum) {
   APFloat f1(1.0);
   APFloat f2(2.0);
   APFloat nan = APFloat::getNaN(APFloat::IEEEdouble());
+  APFloat snan = APFloat::getSNaN(APFloat::IEEEdouble());
 
   EXPECT_EQ(2.0, maxnum(f1, f2).convertToDouble());
   EXPECT_EQ(2.0, maxnum(f2, f1).convertToDouble());
   EXPECT_EQ(1.0, maxnum(f1, nan).convertToDouble());
   EXPECT_EQ(1.0, maxnum(nan, f1).convertToDouble());
+  EXPECT_TRUE(std::isnan(maxnum(f1, snan).convertToDouble()));
+  EXPECT_TRUE(std::isnan(maxnum(snan, f1).convertToDouble()));
+  EXPECT_FALSE(maxnum(f1, snan).isSignaling());
+  EXPECT_FALSE(maxnum(snan, f1).isSignaling());
 
   APFloat zp(0.0);
   APFloat zn(-0.0);

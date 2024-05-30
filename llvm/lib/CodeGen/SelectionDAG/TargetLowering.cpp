@@ -8378,23 +8378,9 @@ SDValue TargetLowering::expandFMINNUM_FMAXNUM(SDNode *Node,
         "Expanding fminnum/fmaxnum for scalable vectors is undefined.");
 
   if (isOperationLegalOrCustom(NewOp, VT)) {
-    SDValue Quiet0 = Node->getOperand(0);
-    SDValue Quiet1 = Node->getOperand(1);
-
-    if (!Node->getFlags().hasNoNaNs()) {
-      // Insert canonicalizes if it's possible we need to quiet to get correct
-      // sNaN behavior.
-      if (!DAG.isKnownNeverSNaN(Quiet0)) {
-        Quiet0 = DAG.getNode(ISD::FCANONICALIZE, dl, VT, Quiet0,
-                             Node->getFlags());
-      }
-      if (!DAG.isKnownNeverSNaN(Quiet1)) {
-        Quiet1 = DAG.getNode(ISD::FCANONICALIZE, dl, VT, Quiet1,
-                             Node->getFlags());
-      }
-    }
-
-    return DAG.getNode(NewOp, dl, VT, Quiet0, Quiet1, Node->getFlags());
+    SDValue Operand0 = Node->getOperand(0);
+    SDValue Operand1 = Node->getOperand(1);
+    return DAG.getNode(NewOp, dl, VT, Operand0, Operand1, Node->getFlags());
   }
 
   // If the target has FMINIMUM/FMAXIMUM but not FMINNUM/FMAXNUM use that
