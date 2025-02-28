@@ -1005,23 +1005,31 @@ public:
                             const Twine &Name = "");
 
   /// Create call to the minnum intrinsic.
-  Value *CreateMinNum(Value *LHS, Value *RHS, const Twine &Name = "") {
+  Value *CreateMinNum(Value *LHS, Value *RHS, const Twine &Name = "",
+                      bool NoSignedZeros = false) {
+    llvm::FastMathFlags FMF;
+    FMF.setNoSignedZeros(NoSignedZeros);
+    FMFSource FMFSrc(FMF);
     if (IsFPConstrained) {
       return CreateConstrainedFPUnroundedBinOp(
-          Intrinsic::experimental_constrained_minnum, LHS, RHS, nullptr, Name);
+          Intrinsic::experimental_constrained_minnum, LHS, RHS, FMFSrc, Name);
     }
 
-    return CreateBinaryIntrinsic(Intrinsic::minnum, LHS, RHS, nullptr, Name);
+    return CreateBinaryIntrinsic(Intrinsic::minnum, LHS, RHS, FMFSrc, Name);
   }
 
   /// Create call to the maxnum intrinsic.
-  Value *CreateMaxNum(Value *LHS, Value *RHS, const Twine &Name = "") {
+  Value *CreateMaxNum(Value *LHS, Value *RHS, const Twine &Name = "",
+                      bool NoSignedZeros = false) {
+    llvm::FastMathFlags FMF;
+    FMF.setNoSignedZeros(NoSignedZeros);
+    FMFSource FMFSrc(FMF);
     if (IsFPConstrained) {
       return CreateConstrainedFPUnroundedBinOp(
-          Intrinsic::experimental_constrained_maxnum, LHS, RHS, nullptr, Name);
+          Intrinsic::experimental_constrained_maxnum, LHS, RHS, FMFSrc, Name);
     }
 
-    return CreateBinaryIntrinsic(Intrinsic::maxnum, LHS, RHS, nullptr, Name);
+    return CreateBinaryIntrinsic(Intrinsic::maxnum, LHS, RHS, FMFSrc, Name);
   }
 
   /// Create call to the minimum intrinsic.
